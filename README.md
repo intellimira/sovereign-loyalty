@@ -8,6 +8,8 @@
 
 **→ [LIVE DEMO](https://intellimira.github.io/sovereign-loyalty/) ←**
 
+> **Works on iPhone AND Android.** Open in Safari or Chrome, then "Add to Home Screen" to install as an app.
+
 Open that link on your phone. That's it. Tap "Add to Home Screen" to install it as an app.
 
 ### Option 2: Run Locally
