@@ -780,6 +780,52 @@
         }
         .reset-btn:active { background: rgba(196, 69, 69, 0.2); }
 
+        /* ── Abuse Report ── */
+        .abuse-flag {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            border-left: 3px solid var(--danger);
+        }
+        .abuse-flag.warning { border-left-color: var(--warn); }
+        .abuse-flag.info { border-left-color: var(--blue-light); }
+        .abuse-flag .flag-icon { font-size: 1rem; margin-top: 2px; }
+        .abuse-flag .flag-type {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--danger);
+            letter-spacing: 0.1em;
+        }
+        .abuse-flag.warning .flag-type { color: var(--warn); }
+        .abuse-flag.info .flag-type { color: var(--blue-light); }
+        .abuse-flag .flag-detail {
+            font-size: 0.7rem; color: var(--text-muted); line-height: 1.4;
+        }
+
+        /* ── Revenue Card ── */
+        .revenue-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin-top: 8px;
+        }
+        .rev-item {
+            padding: 10px;
+            background: rgba(0,0,0,0.15);
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        .rev-item .rev-val {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1.1rem; color: #fff;
+        }
+        .rev-item .rev-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.45rem; color: var(--text-muted);
+            letter-spacing: 0.1em; margin-top: 2px;
+        }
+        .rev-item.positive .rev-val { color: var(--ok); }
+        .rev-item.negative .rev-val { color: var(--danger); }
+
         /* ── Toast ── */
         .toast {
             position: fixed;
@@ -994,6 +1040,12 @@
         <div class="section-label" style="margin-top: 16px;">IntelliGrow Advisory</div>
         <div id="advisoryFeed"></div>
 
+        <div class="section-label" style="margin-top: 16px;">🛡️ Abuse Protection</div>
+        <div id="abuseReport"></div>
+
+        <div class="section-label" style="margin-top: 16px;">💰 Revenue Intelligence</div>
+        <div id="revenueReport"></div>
+
         <button class="reset-btn" onclick="resetDemo()">↻ RESET DEMO DATA</button>
     </div>
 </div>
@@ -1192,17 +1244,41 @@
         const targetUserId = document.getElementById('staffLookupSelect').value || currentCustomerId;
         const staffId = document.getElementById('staffSelect').value;
 
-        const { customer, entry } = E.scanCard(targetUserId, staffId);
+        const result = E.scanCard(targetUserId, staffId);
 
-        // Show overlay
         const overlay = document.getElementById('scanOverlay');
+
+        if (result.blocked) {
+            // ANTI-ABUSE BLOCK
+            overlay.className = 'scanner-overlay show';
+            overlay.style.background = 'rgba(196, 69, 69, 0.92)';
+            document.getElementById('overlayIcon').textContent = '⛔';
+            document.getElementById('overlayText').textContent = result.reason.replace(/_/g, ' ');
+            document.getElementById('overlayDetail').textContent = result.message;
+
+            haptic('heavy');
+            showToast(`BLOCKED: ${result.message}`);
+
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                overlay.style.background = '';
+            }, 3000);
+            return;
+        }
+
+        // Success
         overlay.className = 'scanner-overlay success show';
+        overlay.style.background = '';
         document.getElementById('overlayIcon').textContent = '✓';
         document.getElementById('overlayText').textContent = 'STAMP AWARDED';
-        document.getElementById('overlayDetail').textContent = `${customer.name} → ${customer.tier} (${customer.points} stamps)`;
+        document.getElementById('overlayDetail').textContent = `${result.customer.name} → ${result.customer.tier} (${result.customer.points} stamps)`;
+
+        if (result.check?.warning) {
+            document.getElementById('overlayDetail').textContent += `\n⚠ ${result.check.message}`;
+        }
 
         haptic('heavy');
-        showToast(`+1 Stamp for ${customer.name} (${customer.points} total)`);
+        showToast(`+1 Stamp for ${result.customer.name} (${result.customer.points} total)`);
 
         setTimeout(() => {
             overlay.classList.remove('show');
@@ -1300,26 +1376,21 @@
     }
 
     function redeemReward(userId, rewardName) {
-        const db = E.loadDB();
-        const customer = db.customers.find(c => c.id === userId);
-        if (!customer) return;
+        const staffId = document.getElementById('staffSelect').value;
+        const result = E.redeemReward(userId, rewardName, staffId);
 
-        db.activity.unshift({
-            id: `ACT-${Date.now()}-redeem`,
-            user_id: userId,
-            user_name: customer.name,
-            user_tier: customer.tier,
-            type: 'REDEEM',
-            points_awarded: 0,
-            timestamp: new Date().toISOString(),
-            staff_id: currentStaffId,
-            location: 'Main Bar'
-        });
+        if (result.blocked) {
+            haptic('heavy');
+            showToast(`BLOCKED: ${result.message}`);
+            return;
+        }
 
-        E.saveDB(db);
-        haptic('heavy');
-        showToast(`${customer.name} redeemed: ${rewardName}`);
-        loadStaffProfile(userId);
+        if (result.success) {
+            haptic('heavy');
+            const costMsg = result.cost > 0 ? ` (cost: £${result.cost.toFixed(2)})` : '';
+            showToast(`${result.customer.name} redeemed: ${rewardName}${costMsg}`);
+            loadStaffProfile(userId);
+        }
     }
 
     // ─── Dashboard View ───
@@ -1368,6 +1439,55 @@
                 <div class="adv-body">${a.insight}</div>
             </div>
         `).join('');
+
+        // Abuse Report
+        const abuse = E.getAbuseReport();
+        const flagIcons = { CROSS_VENUE: '📍', RAPID_SCANS: '⚡', STAFF_CONCENTRATION: '👤', HIGH_REDEEM_RATE: '💸' };
+        const flagSeverity = { danger: 'danger', warning: 'warning', info: 'info' };
+        document.getElementById('abuseReport').innerHTML = abuse.flags.length > 0
+            ? abuse.flags.map(f => `
+                <div class="abuse-flag ${flagSeverity[f.severity] || ''}">
+                    <div class="flag-icon">${flagIcons[f.type] || '⚠'}</div>
+                    <div>
+                        <div class="flag-type">${f.type.replace(/_/g, ' ')}</div>
+                        <div class="flag-detail">${f.user ? `<strong>${f.user}</strong>: ` : ''}${f.detail}</div>
+                    </div>
+                </div>
+            `).join('')
+            : '<div style="text-align:center;padding:16px;color:var(--ok);font-size:0.7rem;">✓ No abuse issues detected</div>';
+
+        // Revenue Report
+        const rev = E.getRevenueReport();
+        document.getElementById('revenueReport').innerHTML = `
+            <div class="vibe-card" style="margin-top:0;">
+                <div class="card-label">30-Day P&L</div>
+                <div class="revenue-grid">
+                    <div class="rev-item">
+                        <div class="rev-val">${rev.total_scans}</div>
+                        <div class="rev-label">TOTAL SCANS</div>
+                    </div>
+                    <div class="rev-item">
+                        <div class="rev-val">${rev.total_redeems}</div>
+                        <div class="rev-label">REDEMPTIONS</div>
+                    </div>
+                    <div class="rev-item negative">
+                        <div class="rev-val">£${rev.total_cost.toFixed(2)}</div>
+                        <div class="rev-label">REWARD COST</div>
+                    </div>
+                    <div class="rev-item positive">
+                        <div class="rev-val">£${rev.estimated_revenue.toLocaleString()}</div>
+                        <div class="rev-label">EST. REVENUE</div>
+                    </div>
+                    <div class="rev-item positive" style="grid-column:span 2;">
+                        <div class="rev-val" style="font-size:1.4rem;">${rev.roi}% ROI</div>
+                        <div class="rev-label">RETURN ON REWARD INVESTMENT</div>
+                    </div>
+                </div>
+                <div style="margin-top:10px;font-size:0.65rem;color:var(--text-muted);text-align:center;">
+                    Avg cost per redemption: £${rev.avg_cost_per_redemption} · Net benefit: £${rev.net_benefit.toLocaleString()}
+                </div>
+            </div>
+        `;
     }
 
     // ─── Utilities ───
