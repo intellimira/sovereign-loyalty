@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sovereign">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0d1117">
+    <meta name="description" content="The Greatest Loyalty Card — Sovereign Retention Engine">
+    <title>Sovereign Loyalty | Command Hub</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════════════
+           SOVEREIGN LOYALTY — ADS v1.0 Mobile PWA
+           Antigravity Design System • Glassmorphic Dark Theme
+           ═══════════════════════════════════════════════════ */
+
+        :root {
+            --navy:         #0d1117;
+            --navy-mid:     #141b24;
+            --navy-card:    #1a2332;
+            --navy-border:  #1e2d42;
+            --blue:         #3e5066;
+            --blue-light:   #5b7fa5;
+            --blue-glow:    rgba(62, 80, 102, 0.25);
+            --teal:         #64b5a0;
+            --teal-glow:    rgba(100, 181, 160, 0.3);
+            --gold:         #c9a84c;
+            --gold-light:   #e2c06a;
+            --gold-glow:    rgba(201, 168, 76, 0.3);
+            --text:         #cdd9e8;
+            --text-muted:   #6b849e;
+            --text-dim:     #3d5166;
+            --ok:           #64b5a0;
+            --warn:         #c9a84c;
+            --danger:       #c44545;
+            --radius:       12px;
+            --radius-sm:    6px;
+            --glass:        rgba(26, 35, 50, 0.85);
+            --glass-border: rgba(30, 45, 66, 0.6);
+            --safe-bottom:  env(safe-area-inset-bottom, 0px);
+            --safe-top:     env(safe-area-inset-top, 0px);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--navy);
+            color: var(--text);
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 400;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ── Background Grid ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(62,80,102,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(62,80,102,0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none; z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -40%; left: -20%;
+            width: 80%; height: 80%;
+            background: radial-gradient(ellipse, rgba(62,80,102,0.06) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── Install Banner ── */
+        .install-banner {
+            display: none;
+            position: fixed; top: var(--safe-top, 0); left: 0; right: 0;
+            background: linear-gradient(135deg, var(--blue) 0%, #2a3a4e 100%);
+            padding: 12px 20px;
+            z-index: 9999;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideDown 0.4s ease-out;
+        }
+        .install-banner.show { display: flex; }
+        .install-banner span { font-size: 0.8rem; font-weight: 600; }
+        .install-banner button {
+            background: var(--gold); color: #000; border: none;
+            padding: 8px 16px; border-radius: var(--radius-sm);
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .install-banner .dismiss {
+            background: none; color: var(--text-muted); padding: 8px;
+        }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+        /* ── Header ── */
+        header {
+            position: relative; z-index: 100;
+            padding: 12px 16px;
+            padding-top: calc(12px + var(--safe-top, 0px));
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-brand {
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: var(--blue);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 15px var(--blue-glow);
+        }
+        .logo-icon .diamond {
+            width: 14px; height: 14px;
+            border: 2px solid var(--gold);
+            transform: rotate(45deg);
+        }
+
+        .brand-text .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 0.85rem;
+            letter-spacing: 0.02em; color: #fff;
+        }
+        .brand-text .brand-sub {
+            font-size: 0.5rem; color: var(--text-muted);
+            letter-spacing: 0.15em; text-transform: uppercase;
+        }
+
+        .header-status {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .live-dot {
+            width: 6px; height: 6px;
+            background: var(--ok);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--ok);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .live-text {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem; color: var(--ok);
+            letter-spacing: 0.1em;
+        }
+
+        /* ── View Container ── */
+        .view-container {
+            flex: 1; position: relative; overflow: hidden; z-index: 1;
+        }
+
+        .view {
+            position: absolute; inset: 0;
+            display: none;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px 16px calc(20px + var(--safe-bottom));
+            scroll-behavior: smooth;
+        }
+        .view.active { display: block; animation: viewIn 0.35s ease-out; }
+
+        @keyframes viewIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Bottom Navigation ── */
+        nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(13, 17, 23, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid var(--glass-border);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 8px 0 calc(8px + var(--safe-bottom));
+        }
+
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 3px; padding: 6px 0;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .nav-item.active { color: var(--gold); }
+        .nav-item.active::before {
+            content: '';
+            position: absolute; top: -9px;
+            width: 20px; height: 2px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+        .nav-item:active { transform: scale(0.92); }
+        .nav-icon { font-size: 1.15rem; }
+        .nav-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; text-transform: uppercase;
+            letter-spacing: 0.08em; font-weight: 500;
+        }
+
+        /* ═══ VIEW 1: CUSTOMER PASS ═══ */
+        .pass-card {
+            max-width: 360px; margin: 0 auto;
+            background: linear-gradient(165deg, var(--navy-card) 0%, rgba(20,27,36,0.95) 100%);
+            border: 1px solid var(--navy-border);
+            border-radius: var(--radius);
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .pass-card::before {
+            content: 'LOYALTY_PASS_v3.1';
+            position: absolute; top: -8px; left: 16px;
+            background: var(--navy); padding: 2px 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.45rem; color: var(--blue-light);
+            letter-spacing: 0.1em;
+        }
+
+        .pass-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .pass-venue {
+            font-family: 'Syne', sans-serif; font-weight: 800;
+            font-size: 1rem; color: #fff; letter-spacing: -0.02em;
+        }
+        .pass-venue span { color: var(--gold); }
+
+        .tier-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem; font-weight: 700;
+            padding: 3px 10px; border-radius: 3px;
+            letter-spacing: 0.08em;
+        }
+        .tier-BRONZE { background: rgba(205,127,50,0.15); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+        .tier-SILVER { background: rgba(192,192,192,0.1); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.2); }
+        .tier-GOLD { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+        .tier-S-RANK { background: rgba(226,192,106,0.2); color: var(--gold-light); border: 1px solid var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
+
+        .pass-member-id {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--text-muted);
+            letter-spacing: 0.12em; margin-top: 4px;
+        }
+
+        .pass-points {
+            text-align: center; margin: 20px 0;
+        }
+        .points-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 4.5rem; font-weight: 800;
+            color: #fff; line-height: 1;
+            letter-spacing: -0.04em;
+        }
+        .points-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.2em;
+            margin-top: 4px;
+        }
+
+        .pass-qr {
+            background: #fff;
+            width: 130px; height: 130px;
+            margin: 16px auto;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .pass-qr img { width: 100%; height: 100%; object-fit: contain; }
+
+        .pass-secret {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border: 1px dashed rgba(201,168,76,0.25);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .pass-secret:active { transform: scale(0.98); }
+        .pass-secret.revealed {
+            background: rgba(201,168,76,0.08);
+            border-color: var(--gold);
+        }
+        .pass-secret .secret-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--gold);
+            letter-spacing: 0.15em; margin-bottom: 6px;
+        }
+        .pass-secret .secret-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 0.8rem; color: #fff;
+        }
+        .pass-secret .secret-code {
+            display: none;
+            font-family: 'DM Mono', monospace;
+            font-size: 1.4rem; font-weight: 800;
+            color: var(--gold); letter-spacing: 0.15em;
+            margin-top: 8px;
+        }
+        .pass-secret .secret-hint {
+            font-size: 0.65rem; color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .pass-rewards {
+            margin-top: 16px;
+        }
+        .pass-rewards .section-title {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--blue-light);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .reward-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+        }
+        .reward-item .r-icon { font-size: 1.1rem; margin-right: 8px; }
+        .reward-item .r-name { font-weight: 600; font-size: 0.8rem; }
+        .reward-item .r-req {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem; color: var(--text-muted);
+        }
+        .reward-item.unlocked {
+            border-color: var(--ok);
+            background: rgba(100,181,160,0.05);
+        }
+        .reward-item.unlocked .r-req { color: var(--ok); }
+
+        .pass-footer {
+            margin-top: 20px; text-align: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--navy-border);
+        }
+        .pass-footer p {
+            font-size: 0.6rem; color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        /* ── User Selector ── */
+        .user-selector {
+            max-width: 360px; margin: 0 auto 16px;
+        }
+        .user-selector label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--blue-light);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            display: block; margin-bottom: 6px;
+        }
+        .user-selector select {
+            width: 100%;
+            background: var(--navy-card);
+            color: var(--text);
+            border: 1px solid var(--navy-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            appearance: none;
+            cursor: pointer;
+        }
+        .user-selector select:focus {
+            outline: none;
+            border-color: var(--blue-light);
+        }
+
+        /* ═══ VIEW 2: DOOR SCANNER ═══ */
+        .scanner-viewport {
+            width: 100%; height: 260px;
+            background: #050508;
+            border: 1px solid var(--blue);
+            border-radius: var(--radius);
+            position: relative; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 16px;
+        }
+        .scan-line {
+            position: absolute; width: 100%; height: 2px;
+            background: var(--blue-light);
+            box-shadow: 0 0 12px var(--blue);
+            top: 0;
+            animation: scanMove 2.5s linear infinite;
+        }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
+
+        .scanner-placeholder {
+            text-align: center; opacity: 0.5;
+        }
+        .scanner-placeholder .scan-icon { font-size: 3rem; margin-bottom: 8px; }
+        .scanner-placeholder p {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem; color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        #cameraFeed {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .scanner-overlay {
+            position: absolute; inset: 0;
+            display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        .scanner-overlay.show { display: flex; }
+        .scanner-overlay.success {
+            background: rgba(100, 181, 160, 0.92);
+        }
+        .scanner-overlay .overlay-icon { font-size: 3.5rem; margin-bottom: 8px; }
+        .scanner-overlay .overlay-text {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1rem;
+            letter-spacing: 0.08em; color: #fff;
+        }
+        .scanner-overlay .overlay-detail {
+            font-size: 0.7rem; margin-top: 4px;
+            opacity: 0.8;
+        }
+
+        .scanner-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .scanner-controls .primary-action {
+            grid-column: span 2;
+        }
+
+        .btn-tactical {
+            background: var(--navy-card);
+            border: 1px solid var(--navy-border);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: var(--text);
+        }
+        .btn-tactical:active {
+            transform: scale(0.96);
+            background: rgba(255,255,255,0.05);
+        }
+        .btn-tactical .btn-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 0.8rem;
+        }
+        .btn-tactical .btn-sub {
+            font-size: 0.55rem; color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue) 0%, #2a3a4e 100%);
+            border: none;
+            box-shadow: 0 4px 20px var(--blue-glow);
+        }
+        .btn-primary .btn-title { color: #fff; }
+
+        .scanner-stat-bar {
+            display: flex; justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem; color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        /* ── Staff Selector ── */
+        .staff-selector {
+            margin-bottom: 12px;
+        }
+        .staff-selector label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--blue-light);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            display: block; margin-bottom: 6px;
+        }
+        .staff-selector select {
+            width: 100%;
+            background: var(--navy-card);
+            color: var(--text);
+            border: 1px solid var(--navy-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            appearance: none;
+        }
+
+        /* ═══ VIEW 3: STAFF HUB ═══ */
+        .vibe-card {
+            background: var(--navy-card);
+            border: 1px solid var(--navy-border);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-bottom: 12px;
+        }
+        .vibe-card.highlight {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.03);
+        }
+
+        .card-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--blue-light);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .member-profile {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 12px;
+        }
+        .member-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: var(--blue);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1rem; color: #fff;
+        }
+        .member-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1.1rem; color: #fff;
+        }
+        .member-tier { margin-left: 8px; }
+
+        .status-row {
+            display: flex; align-items: center; gap: 6px;
+            margin-top: 4px;
+        }
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--ok);
+            box-shadow: 0 0 6px var(--ok);
+        }
+        .status-text {
+            font-size: 0.65rem; color: var(--ok); font-weight: 600;
+        }
+
+        .vibe-notes {
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-sm);
+            margin-top: 10px;
+        }
+        .vibe-notes .note-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.45rem; color: var(--text-muted);
+            letter-spacing: 0.12em; margin-bottom: 4px;
+        }
+        .vibe-notes .note-text {
+            font-size: 0.8rem; line-height: 1.5; color: var(--text);
+        }
+
+        .rewards-list {
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .reward-entry {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: var(--radius-sm);
+        }
+        .reward-entry.available {
+            border-left: 3px solid var(--gold);
+        }
+        .reward-entry .r-info .r-name {
+            font-weight: 600; font-size: 0.8rem;
+        }
+        .reward-entry .r-info .r-req {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--text-muted);
+        }
+        .redeem-btn {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 3px;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            background: transparent;
+            cursor: pointer;
+        }
+        .redeem-btn:active { background: var(--gold); color: #000; }
+
+        .activity-log {
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .log-entry {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+        }
+        .log-entry .log-type {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--blue-light);
+        }
+        .log-entry .log-time {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--text-muted);
+        }
+
+        /* ═══ VIEW 4: MERCHANT DASHBOARD ═══ */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .kpi-card {
+            background: var(--navy-card);
+            border: 1px solid var(--navy-border);
+            border-radius: var(--radius);
+            padding: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 2px;
+        }
+        .kpi-card.blue::before { background: linear-gradient(90deg, var(--blue), var(--blue-light)); }
+        .kpi-card.teal::before { background: linear-gradient(90deg, var(--teal), #8ed9c7); }
+        .kpi-card.gold::before { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+        .kpi-card.green::before { background: linear-gradient(90deg, var(--ok), #a7e0d3); }
+
+        .kpi-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--text-muted);
+            letter-spacing: 0.12em; text-transform: uppercase;
+        }
+        .kpi-value {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1.6rem;
+            color: #fff; margin-top: 4px;
+        }
+        .kpi-delta {
+            font-size: 0.6rem; margin-top: 4px;
+            color: var(--ok);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .feed-section {
+            margin-bottom: 16px;
+        }
+        .feed-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+        }
+        .feed-item.highlight-feed {
+            border-left: 3px solid var(--gold);
+        }
+        .feed-item .feed-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 0.8rem; color: #fff;
+        }
+        .feed-item .feed-detail {
+            font-size: 0.6rem; color: var(--text-muted);
+        }
+        .feed-item .feed-value {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem; font-weight: 600;
+        }
+
+        .advisory-card {
+            padding: 14px;
+            background: rgba(0,0,0,0.2);
+            border-left: 3px solid var(--gold);
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
+        }
+        .advisory-card.warning { border-left-color: var(--warn); }
+        .advisory-card.danger { border-left-color: var(--danger); }
+        .advisory-card .adv-type {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.45rem; color: var(--gold);
+            letter-spacing: 0.12em; margin-bottom: 4px;
+        }
+        .advisory-card.warning .adv-type { color: var(--warn); }
+        .advisory-card.danger .adv-type { color: var(--danger); }
+        .advisory-card .adv-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 0.8rem; color: #fff;
+            margin-bottom: 4px;
+        }
+        .advisory-card .adv-body {
+            font-size: 0.7rem; color: var(--text-muted); line-height: 1.5;
+        }
+
+        .tier-breakdown {
+            display: flex; gap: 6px; margin-top: 8px;
+        }
+        .tier-bar {
+            flex: 1; text-align: center;
+            padding: 8px 4px;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .tier-bar .tb-count {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1.1rem; color: #fff;
+        }
+        .tier-bar .tb-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.45rem; color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        /* ── Section Label ── */
+        .section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--blue-light);
+            letter-spacing: 0.18em; text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: var(--navy-border);
+        }
+
+        /* ── Reset Button ── */
+        .reset-btn {
+            display: block;
+            width: 100%; max-width: 360px;
+            margin: 20px auto 0;
+            padding: 10px;
+            background: rgba(196, 69, 69, 0.1);
+            border: 1px solid rgba(196, 69, 69, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--danger);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem; letter-spacing: 0.1em;
+            cursor: pointer; text-align: center;
+        }
+        .reset-btn:active { background: rgba(196, 69, 69, 0.2); }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: calc(70px + var(--safe-bottom));
+            left: 50%; transform: translateX(-50%);
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 10px 20px;
+            font-size: 0.75rem; font-weight: 600;
+            color: #fff;
+            z-index: 9000;
+            opacity: 0; pointer-events: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .toast.show {
+            opacity: 1; pointer-events: auto;
+            animation: toastIn 0.3s ease-out;
+        }
+        @keyframes toastIn {
+            from { transform: translateX(-50%) translateY(10px); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Install Banner -->
+<div class="install-banner" id="installBanner">
+    <span>📱 Install Sovereign Loyalty</span>
+    <div style="display:flex;gap:8px;">
+        <button onclick="installApp()">Install</button>
+        <button class="dismiss" onclick="dismissInstall()">✕</button>
+    </div>
+</div>
+
+<!-- Header -->
+<header>
+    <div class="header-brand">
+        <div class="logo-icon"><div class="diamond"></div></div>
+        <div class="brand-text">
+            <div class="brand-name">SOVEREIGN_LOYALTY</div>
+            <div class="brand-sub" id="headerBusinessName">Leeds Bar</div>
+        </div>
+    </div>
+    <div class="header-status">
+        <div class="live-dot"></div>
+        <span class="live-text">LIVE</span>
+    </div>
+</header>
+
+<!-- View Container -->
+<div class="view-container">
+
+    <!-- ═══ VIEW 1: CUSTOMER PASS ═══ -->
+    <div id="view-pass" class="view active">
+        <div class="user-selector">
+            <label>Select Member</label>
+            <select id="customerSelect" onchange="switchCustomer(this.value)"></select>
+        </div>
+
+        <div class="pass-card">
+            <div class="pass-header">
+                <div>
+                    <div class="pass-venue" id="passVenue">LEEDS BAR <span>ELITE</span></div>
+                    <div class="pass-member-id" id="passMemberId">SOVEREIGN PASS #4821</div>
+                </div>
+                <div class="tier-badge" id="passTierBadge">S-RANK</div>
+            </div>
+
+            <div class="pass-points">
+                <div class="points-value" id="passPoints">52</div>
+                <div class="points-label">Stamps Collected</div>
+            </div>
+
+            <div class="pass-qr">
+                <img id="passQR" src="" alt="Member QR">
+            </div>
+
+            <div class="pass-secret" id="secretBox" onclick="toggleSecret()">
+                <div class="secret-label">SECRET MENU TRIGGER</div>
+                <div class="secret-name">🌪️ THE TWO WINDS</div>
+                <div class="secret-code" id="secretCode">BREEZE-442</div>
+                <div class="secret-hint" id="secretHint">Tap to reveal access code</div>
+            </div>
+
+            <div class="pass-rewards">
+                <div class="section-title">Available Rewards</div>
+                <div id="rewardsList"></div>
+            </div>
+
+            <div class="pass-footer">
+                <p>Valid at all partner venues in Leeds/Manchester</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ VIEW 2: DOOR SCANNER ═══ -->
+    <div id="view-scanner" class="view">
+        <div class="staff-selector">
+            <label>Operating As</label>
+            <select id="staffSelect"></select>
+        </div>
+
+        <div class="scanner-viewport" id="scannerViewport">
+            <div class="scan-line"></div>
+            <div class="scanner-placeholder" id="scannerPlaceholder">
+                <div class="scan-icon">📡</div>
+                <p>POSITION QR IN VIEWPORT</p>
+            </div>
+            <video id="cameraFeed" autoplay playsinline></video>
+            <div class="scanner-overlay" id="scanOverlay">
+                <div class="overlay-icon" id="overlayIcon">✓</div>
+                <div class="overlay-text" id="overlayText">STAMP AWARDED</div>
+                <div class="overlay-detail" id="overlayDetail"></div>
+            </div>
+        </div>
+
+        <div class="scanner-controls">
+            <div class="btn-tactical btn-primary primary-action" onclick="manualAward()">
+                <div class="btn-title">AWARD STAMP</div>
+                <div class="btn-sub">Confirm regular attendance</div>
+            </div>
+            <div class="btn-tactical" onclick="scanQR()">
+                <div class="btn-title">📷 SCAN QR</div>
+                <div class="btn-sub">Open camera</div>
+            </div>
+            <div class="btn-tactical" onclick="showView('staff')">
+                <div class="btn-title">VIBE CHECK</div>
+                <div class="btn-sub">Log notes on regular</div>
+            </div>
+        </div>
+
+        <div class="scanner-stat-bar" id="scannerStats">
+            <span>SHIFT_TOTAL: 0 SCANS</span>
+            <span>S-RANK: 0</span>
+        </div>
+    </div>
+
+    <!-- ═══ VIEW 3: STAFF HUB ═══ -->
+    <div id="view-staff" class="view">
+        <div class="user-selector">
+            <label>Lookup Member</label>
+            <select id="staffLookupSelect" onchange="loadStaffProfile(this.value)"></select>
+        </div>
+
+        <div class="vibe-card highlight" id="memberProfile">
+            <div class="card-label">Identified Regular</div>
+            <div class="member-profile">
+                <div class="member-avatar" id="memberAvatar">V</div>
+                <div>
+                    <div class="member-name" id="memberName">Vitus <span class="member-tier tier-badge tier-S-RANK" id="memberTierBadge">S-RANK</span></div>
+                    <div class="status-row">
+                        <div class="status-dot"></div>
+                        <span class="status-text">VERIFIED MEMBER</span>
+                    </div>
+                </div>
+            </div>
+            <div class="vibe-notes" id="memberNotes">
+                <div class="note-label">VIBE INTEL</div>
+                <div class="note-text">Guinness (Extra Cold). Prefers back room. Match-day regular.</div>
+            </div>
+        </div>
+
+        <div class="vibe-card">
+            <div class="card-label">Available Rewards</div>
+            <div class="rewards-list" id="staffRewardsList"></div>
+        </div>
+
+        <div class="vibe-card">
+            <div class="card-label">Recent Activity</div>
+            <div class="activity-log" id="staffActivityLog"></div>
+        </div>
+    </div>
+
+    <!-- ═══ VIEW 4: MERCHANT DASHBOARD ═══ -->
+    <div id="view-dashboard" class="view">
+        <div class="section-label">Real-Time Performance</div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card blue">
+                <div class="kpi-label">Active Cards</div>
+                <div class="kpi-value" id="kpiTotalCards">0</div>
+                <div class="kpi-delta" id="kpiCardsDelta"></div>
+            </div>
+            <div class="kpi-card teal">
+                <div class="kpi-label">Scans (24h)</div>
+                <div class="kpi-value" id="kpiScans24h" style="color:var(--teal)">0</div>
+                <div class="kpi-delta" id="kpiScansDelta"></div>
+            </div>
+            <div class="kpi-card gold">
+                <div class="kpi-label">Redemptions</div>
+                <div class="kpi-value" id="kpiRedemptions" style="color:var(--gold)">0</div>
+                <div class="kpi-delta" id="kpiRedeemDelta" style="color:var(--gold)"></div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-label">Retention Rate</div>
+                <div class="kpi-value" id="kpiRetention">0%</div>
+                <div class="kpi-delta" id="kpiRetainDelta"></div>
+            </div>
+        </div>
+
+        <div class="section-label">Tier Breakdown</div>
+        <div class="tier-breakdown" id="tierBreakdown"></div>
+
+        <div class="section-label" style="margin-top: 16px;">Live Activity Stream</div>
+        <div class="feed-section" id="liveFeed"></div>
+
+        <div class="section-label" style="margin-top: 16px;">IntelliGrow Advisory</div>
+        <div id="advisoryFeed"></div>
+
+        <button class="reset-btn" onclick="resetDemo()">↻ RESET DEMO DATA</button>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav>
+    <div class="nav-item active" onclick="showView('pass')">
+        <div class="nav-icon">💳</div>
+        <div class="nav-label">Pass</div>
+    </div>
+    <div class="nav-item" onclick="showView('scanner')">
+        <div class="nav-icon">📡</div>
+        <div class="nav-label">Door</div>
+    </div>
+    <div class="nav-item" onclick="showView('staff')">
+        <div class="nav-icon">🍺</div>
+        <div class="nav-label">Staff</div>
+    </div>
+    <div class="nav-item" onclick="showView('dashboard')">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">CRM</div>
+    </div>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Engine -->
+<script src="engine.js"></script>
+<script>
+    /* ═══════════════════════════════════════════════════
+       SOVEREIGN LOYALTY — App Controller
+       ═══════════════════════════════════════════════════ */
+
+    const E = window.SovereignEngine;
+    let currentCustomerId = null;
+    let currentStaffId = 'DOOR_01';
+    let deferredPrompt = null;
+
+    // ─── PWA Install ───
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBanner').classList.add('show');
+    });
+
+    function installApp() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+        document.getElementById('installBanner').classList.remove('show');
+    }
+
+    function dismissInstall() {
+        document.getElementById('installBanner').classList.remove('show');
+    }
+
+    // ─── Service Worker ───
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    // ─── Init ───
+    function init() {
+        populateSelectors();
+        loadCustomerView();
+        loadScannerView();
+        loadStaffView();
+        loadDashboardView();
+    }
+
+    function populateSelectors() {
+        const db = E.loadDB();
+        const customerSelect = document.getElementById('customerSelect');
+        const staffLookupSelect = document.getElementById('staffLookupSelect');
+        const staffSelect = document.getElementById('staffSelect');
+
+        // Customer selector
+        customerSelect.innerHTML = db.customers.map(c =>
+            `<option value="${c.id}" ${c.id === (currentCustomerId || db.customers[0]?.id) ? 'selected' : ''}>${c.name} (${c.tier}) — ${c.points} stamps</option>`
+        ).join('');
+
+        // Staff lookup
+        staffLookupSelect.innerHTML = db.customers.map(c =>
+            `<option value="${c.id}" ${c.id === (currentCustomerId || db.customers[0]?.id) ? 'selected' : ''}>${c.name} (${c.tier})</option>`
+        ).join('');
+
+        // Staff selector
+        staffSelect.innerHTML = db.staff.map(s =>
+            `<option value="${s.id}">${s.name} — ${s.role}</option>`
+        ).join('');
+
+        currentCustomerId = currentCustomerId || db.customers[0]?.id;
+    }
+
+    // ─── View Navigation ───
+    function showView(id) {
+        const viewMap = { pass: 'view-pass', scanner: 'view-scanner', staff: 'view-staff', dashboard: 'view-dashboard' };
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewMap[id]).classList.add('active');
+
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.nav-item')[
+            { pass: 0, scanner: 1, staff: 2, dashboard: 3 }[id]
+        ].classList.add('active');
+
+        // Refresh views when switching
+        if (id === 'dashboard') loadDashboardView();
+        if (id === 'staff') loadStaffView();
+    }
+
+    // ─── Customer Pass View ───
+    function switchCustomer(userId) {
+        currentCustomerId = userId;
+        loadCustomerView();
+        loadStaffProfile(userId);
+    }
+
+    function loadCustomerView() {
+        const customer = E.getCustomer(currentCustomerId);
+        if (!customer) return;
+
+        document.getElementById('passVenue').innerHTML = 'LEEDS BAR <span>ELITE</span>';
+        document.getElementById('passMemberId').textContent = `SOVEREIGN PASS #${customer.id.replace('USR-', '')}`;
+
+        const tierBadge = document.getElementById('passTierBadge');
+        tierBadge.textContent = customer.tier;
+        tierBadge.className = `tier-badge tier-${customer.tier}`;
+
+        document.getElementById('passPoints').textContent = String(customer.points).padStart(2, '0');
+
+        // QR Code
+        const qrData = `SOVEREIGN_${customer.id}_${customer.tier}`;
+        document.getElementById('passQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrData)}`;
+
+        // Secret menu
+        const secrets = E.getSecretMenu(customer.tier);
+        const secretBox = document.getElementById('secretBox');
+        if (secrets.length > 0) {
+            const secret = secrets[0];
+            secretBox.querySelector('.secret-name').textContent = `🌪️ ${secret.name.toUpperCase()}`;
+            document.getElementById('secretCode').textContent = secret.code;
+            secretBox.style.display = 'block';
+        } else {
+            secretBox.style.display = 'none';
+        }
+
+        // Reset secret reveal
+        document.getElementById('secretCode').style.display = 'none';
+        document.getElementById('secretHint').style.display = 'block';
+        secretBox.classList.remove('revealed');
+
+        // Rewards
+        const rewards = E.getAvailableRewards(customer.points);
+        const allRewards = E.REWARDS;
+        document.getElementById('rewardsList').innerHTML = allRewards.map(r => {
+            const unlocked = customer.points >= r.stamps_required;
+            return `
+                <div class="reward-item ${unlocked ? 'unlocked' : ''}">
+                    <div style="display:flex;align-items:center;">
+                        <span class="r-icon">${r.icon}</span>
+                        <span class="r-name">${r.name}</span>
+                    </div>
+                    <span class="r-req">${unlocked ? '✓ UNLOCKED' : `${r.stamps_required} stamps`}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleSecret() {
+        const code = document.getElementById('secretCode');
+        const hint = document.getElementById('secretHint');
+        const box = document.getElementById('secretBox');
+
+        if (code.style.display === 'none') {
+            code.style.display = 'block';
+            hint.style.display = 'none';
+            box.classList.add('revealed');
+            haptic('medium');
+        } else {
+            code.style.display = 'none';
+            hint.style.display = 'block';
+            box.classList.remove('revealed');
+        }
+    }
+
+    // ─── Scanner View ───
+    function loadScannerView() {
+        const stats = E.getBusinessStats();
+        const sRank = stats.tiers['S-RANK'] || 0;
+        document.getElementById('scannerStats').innerHTML =
+            `<span>SHIFT_TOTAL: ${stats.scans_24h} SCANS</span><span>S-RANK: ${sRank}</span>`;
+    }
+
+    function manualAward() {
+        const targetUserId = document.getElementById('staffLookupSelect').value || currentCustomerId;
+        const staffId = document.getElementById('staffSelect').value;
+
+        const { customer, entry } = E.scanCard(targetUserId, staffId);
+
+        // Show overlay
+        const overlay = document.getElementById('scanOverlay');
+        overlay.className = 'scanner-overlay success show';
+        document.getElementById('overlayIcon').textContent = '✓';
+        document.getElementById('overlayText').textContent = 'STAMP AWARDED';
+        document.getElementById('overlayDetail').textContent = `${customer.name} → ${customer.tier} (${customer.points} stamps)`;
+
+        haptic('heavy');
+        showToast(`+1 Stamp for ${customer.name} (${customer.points} total)`);
+
+        setTimeout(() => {
+            overlay.classList.remove('show');
+            loadScannerView();
+            loadCustomerView();
+        }, 2000);
+    }
+
+    function scanQR() {
+        // Attempt camera access for QR scanning
+        const video = document.getElementById('cameraFeed');
+        const placeholder = document.getElementById('scannerPlaceholder');
+
+        if (video.srcObject) {
+            // Stop camera
+            video.srcObject.getTracks().forEach(t => t.stop());
+            video.srcObject = null;
+            video.style.display = 'none';
+            placeholder.style.display = 'block';
+            return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast('Camera not available — use manual award');
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
+        }).then(stream => {
+            video.srcObject = stream;
+            video.style.display = 'block';
+            placeholder.style.display = 'none';
+            showToast('Camera active — scan customer QR code');
+
+            // In a real app, we'd use a QR detection library here
+            // For demo, we simulate after 3 seconds
+            setTimeout(() => {
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(t => t.stop());
+                    video.srcObject = null;
+                    video.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    manualAward();
+                }
+            }, 4000);
+        }).catch(() => {
+            showToast('Camera access denied — use manual award');
+        });
+    }
+
+    // ─── Staff Hub View ───
+    function loadStaffView() {
+        loadStaffProfile(currentCustomerId);
+    }
+
+    function loadStaffProfile(userId) {
+        const customer = E.getCustomer(userId);
+        if (!customer) return;
+
+        document.getElementById('memberAvatar').textContent = customer.name.charAt(0).toUpperCase();
+        document.getElementById('memberName').innerHTML =
+            `${customer.name} <span class="member-tier tier-badge tier-${customer.tier}">${customer.tier}</span>`;
+        document.getElementById('memberNotes').querySelector('.note-text').textContent =
+            customer.notes || 'No vibe notes recorded yet.';
+
+        // Rewards
+        const rewards = E.getAvailableRewards(customer.points);
+        document.getElementById('staffRewardsList').innerHTML = E.REWARDS.map(r => {
+            const available = customer.points >= r.stamps_required;
+            return `
+                <div class="reward-entry ${available ? 'available' : ''}">
+                    <div class="r-info">
+                        <div class="r-name">${r.icon} ${r.name}</div>
+                        <div class="r-req">${available ? '✓ Available' : `${r.stamps_required} stamps needed`}</div>
+                    </div>
+                    ${available ? `<button class="redeem-btn" onclick="redeemReward('${userId}', '${r.name}')">REDEEM</button>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        // Activity
+        const activity = E.getCustomerActivity(userId, 8);
+        document.getElementById('staffActivityLog').innerHTML = activity.length > 0
+            ? activity.map(a => `
+                <div class="log-entry">
+                    <div>
+                        <div class="log-type">${a.type === 'SCAN' ? '📍 SCAN' : '🎁 REDEEM'}</div>
+                        <div style="font-size:0.7rem;margin-top:2px;">${a.location || 'Main Bar'}</div>
+                    </div>
+                    <div class="log-time">${E.timeAgo(a.timestamp)}</div>
+                </div>
+            `).join('')
+            : '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:0.7rem;">No activity yet</div>';
+    }
+
+    function redeemReward(userId, rewardName) {
+        const db = E.loadDB();
+        const customer = db.customers.find(c => c.id === userId);
+        if (!customer) return;
+
+        db.activity.unshift({
+            id: `ACT-${Date.now()}-redeem`,
+            user_id: userId,
+            user_name: customer.name,
+            user_tier: customer.tier,
+            type: 'REDEEM',
+            points_awarded: 0,
+            timestamp: new Date().toISOString(),
+            staff_id: currentStaffId,
+            location: 'Main Bar'
+        });
+
+        E.saveDB(db);
+        haptic('heavy');
+        showToast(`${customer.name} redeemed: ${rewardName}`);
+        loadStaffProfile(userId);
+    }
+
+    // ─── Dashboard View ───
+    function loadDashboardView() {
+        const stats = E.getBusinessStats();
+
+        document.getElementById('kpiTotalCards').textContent = stats.total_cards.toLocaleString();
+        document.getElementById('kpiScans24h').textContent = stats.scans_24h.toLocaleString();
+        document.getElementById('kpiRedemptions').textContent = stats.redemptions_24h.toLocaleString();
+        document.getElementById('kpiRetention').textContent = `${stats.retention_rate}%`;
+
+        document.getElementById('kpiCardsDelta').textContent = `↑ ${stats.total_cards} total members`;
+        document.getElementById('kpiScansDelta').textContent = `↑ ${stats.scans_week} this week`;
+        document.getElementById('kpiRedeemDelta').textContent = `↳ processed today`;
+        document.getElementById('kpiRetainDelta').textContent = `S-Rank Level`;
+
+        // Tier breakdown
+        const tierOrder = ['BRONZE', 'SILVER', 'GOLD', 'S-RANK'];
+        document.getElementById('tierBreakdown').innerHTML = tierOrder.map(t => `
+            <div class="tier-bar">
+                <div class="tb-count">${stats.tiers[t] || 0}</div>
+                <div class="tb-label">${t}</div>
+            </div>
+        `).join('');
+
+        // Live feed
+        const feed = E.getLiveFeed(10);
+        document.getElementById('liveFeed').innerHTML = feed.map(a => `
+            <div class="feed-item ${a.user_tier === 'S-RANK' ? 'highlight-feed' : ''}">
+                <div>
+                    <div class="feed-name">${a.user_name} (${a.user_tier})</div>
+                    <div class="feed-detail">${a.location || 'Main Bar'} • ${E.timeAgo(a.timestamp)}</div>
+                </div>
+                <div class="feed-value" style="color:${a.type === 'REDEEM' ? 'var(--gold)' : 'var(--blue-light)'}">
+                    ${a.type === 'REDEEM' ? 'REDEEMED' : '+1 POINT'}
+                </div>
+            </div>
+        `).join('');
+
+        // Advisory
+        const advisory = E.getIntelliGrowAdvisory();
+        document.getElementById('advisoryFeed').innerHTML = advisory.map(a => `
+            <div class="advisory-card ${a.severity === 'warning' ? 'warning' : a.severity === 'danger' ? 'danger' : ''}">
+                <div class="adv-type">${a.type}</div>
+                <div class="adv-title">${a.trigger}</div>
+                <div class="adv-body">${a.insight}</div>
+            </div>
+        `).join('');
+    }
+
+    // ─── Utilities ───
+    function haptic(style = 'light') {
+        if (navigator.vibrate) {
+            const patterns = { light: [10], medium: [20], heavy: [30, 50, 30] };
+            navigator.vibrate(patterns[style] || [10]);
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function resetDemo() {
+        if (confirm('Reset all demo data? This will reload sample customers and activity.')) {
+            E.resetDB();
+            init();
+            showToast('Demo data reset');
+        }
+    }
+
+    // ─── Boot ───
+    init();
+</script>
+</body>
+</html>
