@@ -64,6 +64,296 @@ const REWARDS = [
   { name: 'VIP Entry', stamps_required: 50, icon: '👑', cost_to_business: 0, max_per_month: 4 }
 ];
 
+// ═══════════════════════════════════════════════════════════════
+//  RETENTION ENGINE — Psychological Hooks
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Status Titles (Identity Lock) ───
+const STATUS_TITLES = {
+  BRONZE: { title: 'The Newcomer', icon: '🌱', description: 'Every legend starts here.' },
+  SILVER: { title: 'The Regular', icon: '⚔️', description: 'You know the barstaff by name now.' },
+  GOLD: { title: 'The Insider', icon: '🔐', description: 'You see the hidden menu. You ARE the hidden menu.' },
+  'S-RANK': { title: 'House Legend', icon: '👑', description: 'This is YOUR venue. Act like it.' }
+};
+
+// ─── Achievement Badges (Endowment Effect) ───
+const ACHIEVEMENTS = [
+  { id: 'first_scan', name: 'First Blood', icon: '🩸', description: 'Your first scan. The journey begins.', condition: (c, a) => a.filter(x => x.type === 'SCAN').length >= 1 },
+  { id: 'visit_5', name: 'oyal', icon: '🗡️', description: '5 visits. You\'re not a tourist anymore.', condition: (c, a) => a.filter(x => x.type === 'SCAN').length >= 5 },
+  { id: 'visit_10', name: 'The Ten Club', icon: '🔟', description: '10 visits. Your glass is always full.', condition: (c, a) => a.filter(x => x.type === 'SCAN').length >= 10 },
+  { id: 'visit_25', name: 'Quarter Century', icon: '🏅', description: '25 visits. Staff know your order before you speak.', condition: (c, a) => a.filter(x => x.type === 'SCAN').length >= 25 },
+  { id: 'visit_50', name: 'House Royalty', icon: '🏆', description: '50 visits. Your table is always ready.', condition: (c, a) => a.filter(x => x.type === 'SCAN').length >= 50 },
+  { id: 'first_redeem', name: 'First Taste', icon: '🍷', description: 'Redeemed your first reward. Addiction starts here.', condition: (c, a) => a.filter(x => x.type === 'REDEEM').length >= 1 },
+  { id: 'streak_3', name: 'Hat Trick', icon: '🎩', description: '3 visits in 3 days. You\'re hooked.', condition: (c, a) => checkStreak(a, 3) },
+  { id: 'streak_7', name: 'Week Warrior', icon: '⚔️', description: '7 days straight. This is your second home.', condition: (c, a) => checkStreak(a, 7) },
+  { id: 'night_owl', name: 'Night Owl', icon: '🦉', description: 'Visited after midnight. The night remembers.', condition: (c, a) => a.some(x => new Date(x.timestamp).getHours() >= 0 && new Date(x.timestamp).getHours() < 5) },
+  { id: 'early_bird', name: 'Early Bird', icon: '🐦', description: 'Before 6pm visit. Daylight-drinker energy.', condition: (c, a) => a.some(x => x.type === 'SCAN' && new Date(x.timestamp).getHours() < 18 && new Date(x.timestamp).getHours() >= 12) },
+  { id: 'social_butterfly', name: 'Social Butterfly', icon: '🦋', description: 'Referred a friend. You\'re spreading the cult.', condition: (c) => (c.referrals || 0) >= 1 },
+  { id: 'big_spender', name: 'Big Spender', icon: '💸', description: 'Redeemed 3+ rewards. You\'re getting your money\'s worth.', condition: (c, a) => a.filter(x => x.type === 'REDEEM').length >= 3 },
+  { id: 'quiz_night', name: 'Quizmaster', icon: '🧠', description: 'Tuesday quiz night regular. Brain and beer.', condition: (c, a) => {
+    const tuesdayScans = a.filter(x => x.type === 'SCAN' && new Date(x.timestamp).getDay() === 2);
+    return tuesdayScans.length >= 3;
+  }},
+  { id: 'weekend_warrior', name: 'Weekend Warrior', icon: '⚔️', description: 'Friday + Saturday regular. The weekend starts with you.', condition: (c, a) => {
+    const fridaySat = a.filter(x => x.type === 'SCAN' && (new Date(x.timestamp).getDay() === 5 || new Date(x.timestamp).getDay() === 6));
+    return fridaySat.length >= 4;
+  }}
+];
+
+function checkStreak(activity, requiredDays) {
+  const scanDates = [...new Set(
+    activity.filter(a => a.type === 'SCAN')
+      .map(a => new Date(a.timestamp).toDateString())
+  )].sort((a, b) => new Date(b) - new Date(a));
+
+  if (scanDates.length < requiredDays) return false;
+
+  let streak = 1;
+  for (let i = 0; i < scanDates.length - 1; i++) {
+    const diff = (new Date(scanDates[i]) - new Date(scanDates[i + 1])) / 86400000;
+    if (diff === 1) { streak++; }
+    else { streak = 1; }
+    if (streak >= requiredDays) return true;
+  }
+  return false;
+}
+
+// ─── Weekly Challenges (Commitment/Consistency) ───
+function generateWeeklyChallenges(userId) {
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+
+  const db = loadDB();
+  const weekActivity = db.activity.filter(a =>
+    a.user_id === userId && new Date(a.timestamp).getTime() >= weekStart.getTime()
+  );
+
+  const challenges = [
+    {
+      id: 'visit_3',
+      name: 'Triple Tap',
+      icon: '🎯',
+      description: 'Visit 3 times this week',
+      target: 3,
+      current: weekActivity.filter(a => a.type === 'SCAN').length,
+      reward: '2 bonus stamps',
+      reward_stamps: 2
+    },
+    {
+      id: 'social',
+      name: 'Bring a Mate',
+      icon: '🤝',
+      description: 'Refer 1 friend this week',
+      target: 1,
+      current: Math.min(1, (db.customers.find(c => c.id === userId)?.referrals_this_week || 0)),
+      reward: '5 bonus stamps',
+      reward_stamps: 5
+    },
+    {
+      id: ' variety',
+      name: 'The Explorer',
+      icon: '🗺️',
+      description: 'Visit on 2 different days',
+      target: 2,
+      current: [...new Set(weekActivity.filter(a => a.type === 'SCAN').map(a => new Date(a.timestamp).toDateString()))].length,
+      reward: '1 bonus stamp',
+      reward_stamps: 1
+    },
+    {
+      id: 'spend',
+      name: 'Generous Soul',
+      icon: '🎁',
+      description: 'Redeem a reward this week',
+      target: 1,
+      current: weekActivity.filter(a => a.type === 'REDEEM').length,
+      reward: '3 bonus stamps',
+      reward_stamps: 3
+    }
+  ];
+
+  return challenges.map(c => ({ ...c, complete: c.current >= c.target }));
+}
+
+// ─── Surprise Drops (Variable Reward Schedule) ───
+function checkSurpriseDrop(userId) {
+  const db = loadDB();
+  const customer = db.customers.find(c => c.id === userId);
+  if (!customer) return null;
+
+  if (!db.surprise_drops) db.surprise_drops = [];
+
+  // Check if we already gave a drop today
+  const today = new Date().toISOString().split('T')[0];
+  const alreadyDropped = db.surprise_drops.find(d => d.user_id === userId && d.date === today);
+  if (alreadyDropped) return null;
+
+  // 15% chance of surprise drop on each visit
+  if (Math.random() > 0.15) return null;
+
+  // Determine reward type
+  const drops = [
+    { type: 'BONUS_STAMPS', value: 2, message: '🌟 SURPRISE: +2 bonus stamps!', cost: 0 },
+    { type: 'BONUS_STAMPS', value: 3, message: '🌟 LUCKY VISIT: +3 bonus stamps!', cost: 0 },
+    { type: 'FREE_DRINK', value: 1, message: '🎉 LUCKY DROP: Free drink on us!', cost: 2.50 },
+    { type: 'DOUBLE_NEXT', value: 1, message: '⚡ DOUBLE STAMPS: Your next scan counts double!', cost: 0 },
+  ];
+
+  const drop = drops[Math.floor(Math.random() * drops.length)];
+
+  // Apply the drop
+  if (drop.type === 'BONUS_STAMPS') {
+    customer.points += drop.value;
+  } else if (drop.type === 'DOUBLE_NEXT') {
+    customer.double_next = true;
+  }
+
+  // Log it
+  db.surprise_drops.push({
+    user_id: userId,
+    date: today,
+    type: drop.type,
+    value: drop.value,
+    timestamp: new Date().toISOString()
+  });
+
+  saveDB(db);
+  return drop;
+}
+
+// ─── Flash Events (Scarcity/Urgency) ───
+const FLASH_EVENTS = [
+  { id: 'triple_tuesday', name: 'Triple Stamp Tuesday', icon: '⚡', day: 2, hours: [19, 20, 21], multiplier: 3, description: 'Every scan between 7-9pm gives 3x stamps' },
+  { id: 'happy_hour_bonus', name: 'Happy Hour Bonus', icon: '🍺', day: 5, hours: [17, 18, 19], multiplier: 2, description: 'Friday early bird: 2x stamps before 8pm' },
+  { id: 'quiz_night', name: 'Quiz Night Triple', icon: '🧠', day: 2, hours: [20, 21], multiplier: 3, description: 'Tuesday quiz: 3x stamps for participants' },
+  { id: 'weekend_early', name: 'Weekend Starter', icon: '🌅', day: 5, hours: [12, 13, 14, 15], multiplier: 2, description: 'Friday lunch: 2x stamps for early birds' },
+];
+
+function getActiveFlashEvent() {
+  const now = new Date();
+  const currentDay = now.getDay();
+  const currentHour = now.getHours();
+
+  return FLASH_EVENTS.find(e =>
+    e.day === currentDay && e.hours.includes(currentHour)
+  );
+}
+
+// ─── Social Proof (Community Board) ───
+function getSocialProof() {
+  const db = loadDB();
+  const now = Date.now();
+  const oneWeek = 7 * 86400000;
+
+  const recent = db.activity.filter(a =>
+    a.type === 'SCAN' && (now - new Date(a.timestamp).getTime()) < oneWeek
+  );
+
+  // Who visited most this week
+  const visitCounts = {};
+  recent.forEach(a => {
+    visitCounts[a.user_name] = (visitCounts[a.user_name] || 0) + 1;
+  });
+  const topRegulars = Object.entries(visitCounts)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 5)
+    .map(([name, count], i) => ({
+      rank: i + 1,
+      name,
+      visits: count,
+      icon: i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '📍'
+    }));
+
+  // Tier promotions this week
+  const promotions = recent.filter(a => a.user_tier && a.type === 'SCAN')
+    .filter(a => {
+      const customer = db.customers.find(c => c.id === a.user_id);
+      return customer && TIER_ORDER.indexOf(a.user_tier) < TIER_ORDER.indexOf(customer.tier);
+    })
+    .map(a => ({
+      name: a.user_name,
+      from: a.user_tier,
+      to: db.customers.find(c => c.id === a.user_id)?.tier || a.user_tier
+    }));
+
+  return { topRegulars, promotions };
+}
+
+// ─── Progress to Next Reward (Goal Gradient) ───
+function getProgressToReward(userId) {
+  const customer = getCustomer(userId);
+  if (!customer) return null;
+
+  const nextReward = REWARDS.find(r => r.stamps_required > customer.points);
+  if (!nextReward) {
+    return {
+      complete: true,
+      message: 'You\'ve unlocked all rewards! S-Rank status achieved.',
+      icon: '👑'
+    };
+  }
+
+  const previousThreshold = REWARDS.filter(r => r.stamps_required <= customer.points)
+    .sort((a, b) => b.stamps_required - a.stamps_required)[0]?.stamps_required || 0;
+
+  const stampsNeeded = nextReward.stamps_required - customer.points;
+  const progress = ((customer.points - previousThreshold) / (nextReward.stamps_required - previousThreshold) * 100).toFixed(0);
+
+  return {
+    complete: false,
+    reward: nextReward.name,
+    icon: nextReward.icon,
+    stampsNeeded,
+    progress: Math.min(100, Math.max(0, progress)),
+    message: `${stampsNeeded} more stamp${stampsNeeded !== 1 ? 's' : ''} until ${nextReward.icon} ${nextReward.name}`
+  };
+}
+
+// ─── Referral System (Social Proof + Reciprocity) ───
+function generateReferralCode(userId) {
+  return `REF-${userId.slice(-4)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+}
+
+function applyReferral(referralCode, newUserId) {
+  const db = loadDB();
+  if (!db.referral_ledger) db.referral_ledger = [];
+
+  // Find who owns this referral code
+  const owner = db.customers.find(c => c.referral_code === referralCode);
+  if (!owner) return { success: false, reason: 'INVALID_CODE' };
+
+  // Check if new user was already referred
+  const alreadyReferred = db.referral_ledger.find(r => r.new_user_id === newUserId);
+  if (alreadyReferred) return { success: false, reason: 'ALREADY_REFERRED' };
+
+  // Reward both parties
+  owner.points += 5;
+  owner.referrals = (owner.referrals || 0) + 1;
+
+  const newCustomer = db.customers.find(c => c.id === newUserId);
+  if (newCustomer) {
+    newCustomer.points += 5;
+    newCustomer.referred_by = owner.id;
+  }
+
+  // Log it
+  db.referral_ledger.push({
+    referral_code: referralCode,
+    owner_id: owner.id,
+    new_user_id: newUserId,
+    timestamp: new Date().toISOString()
+  });
+
+  saveDB(db);
+  return {
+    success: true,
+    message: `Both you and ${owner.name} get +5 bonus stamps!`,
+    owner_reward: 5,
+    new_user_reward: 5
+  };
+}
+
 // ─── Demo Seed Data ───
 const DEMO_CUSTOMERS = [
   { id: 'USR-4821', name: 'Vitus', tier: 'S-RANK', points: 52, notes: 'Guinness (Extra Cold). Prefers back room. Match-day regular.', joined: '2025-11-01' },
@@ -300,34 +590,58 @@ function scanCard(userId, staffId = 'DOOR_01', venueId = 'leeds-bar-01') {
   // Award point
   customer.points += 1;
 
+  // ─── FLASH EVENT MULTIPLIER ───
+  const flashEvent = getActiveFlashEvent();
+  if (flashEvent) {
+    customer.points += (flashEvent.multiplier - 1); // additional stamps
+    entry.flash_event = flashEvent.name;
+    entry.points_awarded = flashEvent.multiplier;
+  }
+
+  // ─── DOUBLE NEXT STAMP ───
+  if (customer.double_next) {
+    customer.points += 1;
+    customer.double_next = false;
+    entry.double_bonus = true;
+    entry.points_awarded = (entry.points_awarded || 1) + 1;
+  }
+
   // Recalculate tier
   let tier = 'BRONZE';
   for (const [t, threshold] of Object.entries(TIER_THRESHOLDS).reverse()) {
     if (customer.points >= threshold) { tier = t; break; }
   }
+
+  // Track tier promotion
+  if (tier !== customer.tier) {
+    entry.tier_promoted = { from: customer.tier, to: tier };
+  }
   customer.tier = tier;
 
   // Log activity with full audit trail
-  const entry = {
-    id: `ACT-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    user_id: customer.id,
-    user_name: customer.name,
-    user_tier: tier,
-    type: 'SCAN',
-    points_awarded: 1,
-    timestamp: new Date().toISOString(),
-    staff_id: staffId,
-    location: venueId,
-    flagged: check.warning || null,
-    anti_abuse: {
-      cooldown_ok: true,
-      daily_limit_ok: true,
-      cross_venue_flag: check.warning || null
-    }
+  entry.id = `ACT-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  entry.user_id = customer.id;
+  entry.user_name = customer.name;
+  entry.user_tier = tier;
+  entry.type = 'SCAN';
+  entry.timestamp = new Date().toISOString();
+  entry.staff_id = staffId;
+  entry.location = venueId;
+  entry.flagged = check.warning || null;
+  entry.anti_abuse = {
+    cooldown_ok: true,
+    daily_limit_ok: true,
+    cross_venue_flag: check.warning || null
   };
   db.activity.unshift(entry);
 
-  // STAFF ANOMALY DETECTION
+  // ─── CHECK SURPRISE DROP ───
+  const surprise = checkSurpriseDrop(userId);
+  if (surprise) {
+    entry.surprise_drop = surprise;
+  }
+
+  // ─── STAFF ANOMALY DETECTION ───
   const staffShiftStart = new Date();
   staffShiftStart.setHours(Math.floor(staffShiftStart.getHours() / 8) * 8, 0, 0, 0);
   const staffScansToday = db.activity.filter(a =>
@@ -341,7 +655,7 @@ function scanCard(userId, staffId = 'DOOR_01', venueId = 'leeds-bar-01') {
   }
 
   saveDB(db);
-  return { success: true, customer, entry, check };
+  return { success: true, customer, entry, check, flash: flashEvent || null, surprise };
 }
 
 function redeemReward(userId, rewardName, staffId = 'BAR_02') {
@@ -767,7 +1081,12 @@ window.SovereignEngine = {
   getSecretMenu, getAvailableRewards, redeemSecretCode,
   getAbuseReport, getRevenueReport,
   getDeviceFingerprint,
+  // Retention
+  checkSurpriseDrop, generateWeeklyChallenges, getActiveFlashEvent,
+  getSocialProof, getProgressToReward, generateReferralCode, applyReferral,
+  // Constants
   timeAgo, formatTime,
   TIER_THRESHOLDS, TIER_ORDER, TIER_COLORS,
-  SECRET_MENU, REWARDS, ANTI_ABUSE
+  SECRET_MENU, REWARDS, ANTI_ABUSE,
+  STATUS_TITLES, ACHIEVEMENTS, FLASH_EVENTS
 };

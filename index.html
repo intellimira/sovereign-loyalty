@@ -803,6 +803,158 @@
             font-size: 0.7rem; color: var(--text-muted); line-height: 1.4;
         }
 
+        /* ── Flash Event Banner ── */
+        .flash-banner {
+            display: none;
+            background: linear-gradient(135deg, var(--gold) 0%, #b8942a 100%);
+            color: #000;
+            padding: 8px 16px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+            animation: flashPulse 2s ease-in-out infinite;
+        }
+        .flash-banner.show { display: block; }
+        @keyframes flashPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.85; } }
+
+        /* ── Progress Bar ── */
+        .progress-section {
+            margin-top: 16px;
+        }
+        .progress-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 6px;
+        }
+        .progress-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--blue-light);
+            letter-spacing: 0.12em; text-transform: uppercase;
+        }
+        .progress-value {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem; color: var(--text-muted);
+        }
+        .progress-track {
+            width: 100%; height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; border-radius: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--gold));
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .progress-fill.complete {
+            background: linear-gradient(90deg, var(--ok), #8ed9c7);
+        }
+        .progress-message {
+            font-size: 0.7rem; color: var(--text);
+            margin-top: 6px; text-align: center;
+        }
+
+        /* ── Achievements ── */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .achievement {
+            text-align: center;
+            padding: 8px 4px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: var(--radius-sm);
+            position: relative;
+        }
+        .achievement.unlocked {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.05);
+        }
+        .achievement.locked {
+            opacity: 0.35;
+            filter: grayscale(0.8);
+        }
+        .achievement .ach-icon { font-size: 1.3rem; }
+        .achievement .ach-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.4rem; color: var(--text-muted);
+            letter-spacing: 0.05em; margin-top: 3px;
+        }
+        .achievement.unlocked .ach-name { color: var(--gold); }
+        .achievement .ach-new {
+            position: absolute; top: -3px; right: -3px;
+            width: 8px; height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+
+        /* ── Social Proof ── */
+        .social-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+        }
+        .social-item .s-rank {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 0.9rem; color: #fff;
+            width: 24px; text-align: center;
+        }
+        .social-item .s-name {
+            font-weight: 600; font-size: 0.8rem;
+        }
+        .social-item .s-visits {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.5rem; color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        /* ── Weekly Challenges ── */
+        .challenge-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+        }
+        .challenge-item.complete {
+            border-color: var(--ok);
+            background: rgba(100,181,160,0.05);
+        }
+        .challenge-item .c-icon { font-size: 1.2rem; }
+        .challenge-item .c-info { flex: 1; }
+        .challenge-item .c-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 0.8rem; color: #fff;
+        }
+        .challenge-item .c-desc {
+            font-size: 0.6rem; color: var(--text-muted);
+        }
+        .challenge-item .c-progress {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem; color: var(--blue-light);
+        }
+        .challenge-item.complete .c-progress { color: var(--ok); }
+
+        /* ── Streak Display ── */
+        .streak-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px;
+            background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 20px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem; color: var(--gold);
+            margin-top: 8px;
+        }
+        .streak-badge .streak-fire { font-size: 0.9rem; }
+        .streak-badge .streak-count { font-weight: 700; }
+
         /* ── Revenue Card ── */
         .revenue-grid {
             display: grid; grid-template-columns: 1fr 1fr;
@@ -865,6 +1017,9 @@
     </div>
 </div>
 
+<!-- Flash Event Banner -->
+<div class="flash-banner" id="flashBanner"></div>
+
 <!-- Header -->
 <header>
     <div class="header-brand">
@@ -923,6 +1078,33 @@
             <div class="pass-footer">
                 <p>Valid at all partner venues in Leeds/Manchester</p>
             </div>
+        </div>
+
+        <!-- Progress to Next Reward -->
+        <div class="pass-card" style="margin-top:12px;" id="progressCard">
+            <div class="progress-header">
+                <span class="progress-label">Next Reward</span>
+                <span class="progress-value" id="progressValue">--</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+            <div class="progress-message" id="progressMessage"></div>
+        </div>
+
+        <!-- Streak -->
+        <div style="text-align:center;" id="streakContainer"></div>
+
+        <!-- Achievements -->
+        <div class="pass-card" style="margin-top:12px;">
+            <div class="card-label">Achievements</div>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+        </div>
+
+        <!-- Weekly Challenges -->
+        <div class="pass-card" style="margin-top:12px;">
+            <div class="card-label">Weekly Challenges</div>
+            <div id="weeklyChallenges"></div>
         </div>
     </div>
 
@@ -1046,6 +1228,9 @@
         <div class="section-label" style="margin-top: 16px;">💰 Revenue Intelligence</div>
         <div id="revenueReport"></div>
 
+        <div class="section-label" style="margin-top: 16px;">🏆 Community Board</div>
+        <div id="socialProof"></div>
+
         <button class="reset-btn" onclick="resetDemo()">↻ RESET DEMO DATA</button>
     </div>
 </div>
@@ -1115,6 +1300,18 @@
         loadScannerView();
         loadStaffView();
         loadDashboardView();
+        checkFlashEvent();
+    }
+
+    function checkFlashEvent() {
+        const flash = E.getActiveFlashEvent();
+        const banner = document.getElementById('flashBanner');
+        if (flash) {
+            banner.textContent = `${flash.icon} ${flash.name} — ${flash.description}`;
+            banner.classList.add('show');
+        } else {
+            banner.classList.remove('show');
+        }
     }
 
     function populateSelectors() {
@@ -1175,6 +1372,10 @@
         tierBadge.textContent = customer.tier;
         tierBadge.className = `tier-badge tier-${customer.tier}`;
 
+        // Status title
+        const statusTitle = E.STATUS_TITLES[customer.tier];
+        document.getElementById('passMemberId').textContent = `${statusTitle.icon} ${statusTitle.title} — #${customer.id.replace('USR-', '')}`;
+
         document.getElementById('passPoints').textContent = String(customer.points).padStart(2, '0');
 
         // QR Code
@@ -1213,6 +1414,73 @@
                 </div>
             `;
         }).join('');
+
+        // ─── PROGRESS TO NEXT REWARD ───
+        const progress = E.getProgressToReward(currentCustomerId);
+        if (progress) {
+            const fill = document.getElementById('progressFill');
+            const val = document.getElementById('progressValue');
+            const msg = document.getElementById('progressMessage');
+            if (progress.complete) {
+                fill.style.width = '100%';
+                fill.classList.add('complete');
+                val.textContent = 'ALL UNLOCKED';
+                msg.textContent = progress.message;
+            } else {
+                fill.style.width = `${progress.progress}%`;
+                fill.classList.remove('complete');
+                val.textContent = `${progress.stampsNeeded} TO GO`;
+                msg.textContent = progress.message;
+            }
+        }
+
+        // ─── STREAK ───
+        const activity = E.getCustomerActivity(currentCustomerId, 30);
+        const scanDates = [...new Set(
+            activity.filter(a => a.type === 'SCAN').map(a => new Date(a.timestamp).toDateString())
+        )].sort((a, b) => new Date(b) - new Date(a));
+
+        let streak = 1;
+        for (let i = 0; i < scanDates.length - 1; i++) {
+            if ((new Date(scanDates[i]) - new Date(scanDates[i + 1])) / 86400000 === 1) streak++;
+            else break;
+        }
+        const streakContainer = document.getElementById('streakContainer');
+        if (streak >= 2) {
+            streakContainer.innerHTML = `
+                <div class="streak-badge">
+                    <span class="streak-fire">🔥</span>
+                    <span class="streak-count">${streak}-DAY STREAK</span>
+                </div>
+            `;
+        } else {
+            streakContainer.innerHTML = '';
+        }
+
+        // ─── ACHIEVEMENTS ───
+        const db = E.loadDB();
+        document.getElementById('achievementsGrid').innerHTML = E.ACHIEVEMENTS.map(ach => {
+            const unlocked = ach.condition(customer, activity);
+            return `
+                <div class="achievement ${unlocked ? 'unlocked' : 'locked'}">
+                    <div class="ach-icon">${ach.icon}</div>
+                    <div class="ach-name">${ach.name}</div>
+                </div>
+            `;
+        }).join('');
+
+        // ─── WEEKLY CHALLENGES ───
+        const challenges = E.generateWeeklyChallenges(currentCustomerId);
+        document.getElementById('weeklyChallenges').innerHTML = challenges.map(c => `
+            <div class="challenge-item ${c.complete ? 'complete' : ''}">
+                <div class="c-icon">${c.icon}</div>
+                <div class="c-info">
+                    <div class="c-name">${c.name}</div>
+                    <div class="c-desc">${c.description}</div>
+                </div>
+                <div class="c-progress">${c.current}/${c.target} ${c.complete ? '✓' : ''}</div>
+            </div>
+        `).join('');
     }
 
     function toggleSecret() {
@@ -1273,12 +1541,26 @@
         document.getElementById('overlayText').textContent = 'STAMP AWARDED';
         document.getElementById('overlayDetail').textContent = `${result.customer.name} → ${result.customer.tier} (${result.customer.points} stamps)`;
 
+        // Flash event notification
+        let extraMsg = '';
+        if (result.flash) {
+            extraMsg += `\n⚡ ${result.flash.name} — ${result.flash.multiplier}x stamps!`;
+        }
+        if (result.surprise) {
+            extraMsg += `\n${result.surprise.message}`;
+        }
         if (result.check?.warning) {
-            document.getElementById('overlayDetail').textContent += `\n⚠ ${result.check.message}`;
+            extraMsg += `\n⚠ ${result.check.message}`;
+        }
+        if (extraMsg) {
+            document.getElementById('overlayDetail').textContent += extraMsg;
         }
 
         haptic('heavy');
-        showToast(`+1 Stamp for ${result.customer.name} (${result.customer.points} total)`);
+        let toastMsg = `+${result.entry.points_awarded || 1} Stamp for ${result.customer.name} (${result.customer.points} total)`;
+        if (result.flash) toastMsg = `⚡ ${result.flash.multiplier}x! ${toastMsg}`;
+        if (result.surprise) toastMsg = result.surprise.message;
+        showToast(toastMsg);
 
         setTimeout(() => {
             overlay.classList.remove('show');
@@ -1439,6 +1721,33 @@
                 <div class="adv-body">${a.insight}</div>
             </div>
         `).join('');
+
+        // Social Proof
+        const social = E.getSocialProof();
+        document.getElementById('socialProof').innerHTML = `
+            ${social.topRegulars.length > 0 ? `
+                <div class="vibe-card" style="margin-top:0;">
+                    <div class="card-label">Top Regulars This Week</div>
+                    ${social.topRegulars.map(r => `
+                        <div class="social-item">
+                            <div class="s-rank">${r.icon}</div>
+                            <div class="s-name">${r.name}</div>
+                            <div class="s-visits">${r.visits} visits</div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+            ${social.promotions.length > 0 ? `
+                <div class="vibe-card">
+                    <div class="card-label">🎉 Recent Promotions</div>
+                    ${social.promotions.map(p => `
+                        <div style="font-size:0.75rem;margin-bottom:4px;">
+                            <strong>${p.name}</strong> promoted ${p.from} → ${p.to}
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        `;
 
         // Abuse Report
         const abuse = E.getAbuseReport();
